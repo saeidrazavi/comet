@@ -11,6 +11,17 @@
 *.swm
 *~
 
+# Ignore image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+
+# Ignore model files
+*.pth
+*.tar
+
 # macOS dir files
 .DS_Store
 
