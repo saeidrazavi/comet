@@ -12,6 +12,8 @@
 *~
 
 # Ignore image files
+*.Jpg
+*.JPG
 *.jpg
 *.jpeg
 *.png
@@ -22,6 +24,18 @@
 *.pth
 *.tar
 
+# Ignore runs files 
+Medical/Brain/runs/*
+
+
+Medical/Breast/runs/*
+!Medical/Breast/runs/*.gitkeep 
+
+Medical/Breast/core
+!Medical/Breast/breast-ultrasound-images-dataset/*.gitkeep 
+!Medical/Brain/brain/*.gitkeep 
+
+ 
 # macOS dir files
 .DS_Store
 
