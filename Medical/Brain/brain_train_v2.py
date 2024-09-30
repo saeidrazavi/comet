@@ -2,17 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
-from torchvision.models import resnet18
 import torchvision.transforms as transforms
 from PIL import Image
 import argparse
 import numpy as np
 import torch.nn.functional as F
 from torch.autograd import Variable
-from kmeans_pytorch import kmeans
 from scipy.stats import mode
 from torch.utils.tensorboard import SummaryWriter
-from kmeans import lloyd
 
 device = 'cuda'
 
