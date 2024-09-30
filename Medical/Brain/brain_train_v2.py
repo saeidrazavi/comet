@@ -34,72 +34,6 @@ def parse_args():
     return parser.parse_args()
 
 
-# Define function to get last 4 ReLU activations for the pretrained model
-def get_last_4_relu_pretrained(model, x):
-     
-    activations = []
-    hooks = []
-
-    def getActivation():
-    # the hook signature
-        def hook(model, input, output):
-            activations.append(output.detach())
-        return hook
-    
-    layers_to_hook = [
-        model.layer4[1].relu,  # ReLU after the second block in layer 4
-        model.layer4[0].relu,  # ReLU after the first block in layer 4
-        model.layer3[1].relu,  # ReLU after the second block in layer 3
-        model.layer3[0].relu   # ReLU after the first block in layer 3
-    ]
-
-
-    for layer in layers_to_hook:
-        hook = layer.register_forward_hook(getActivation())
-        hooks.append(hook)
-
-    # Forward pass to capture activations
-    out = model(x)
-
-    # Remove hooks
-    for hook in hooks:
-        hook.remove()
-
-    return activations
-    
-def get_last_4_relu_scratch(model, x):
-
-    activations = []
-    hooks = []
-    def getActivation():
-    # the hook signature
-        def hook(model, input, output):
-            activations.append(output.detach())
-        return hook
-    
-    layers_to_hook = [
-       # ReLU after first block in layer 4
-        model.layer4[6][0].relu,  # ReLU after second block in layer 3
-        model.layer4[6][1].relu,  # ReLU after first block in layer 3
-        model.layer4[7][0].relu,  # ReLU after second block in layer 4
-        model.layer4[7][1].relu, 
-    ]
-
-
-    for layer in layers_to_hook:
-        hook = layer.register_forward_hook(getActivation())
-        hooks.append(hook)
-
-    # Forward pass to capture activations
-    out = model(x, type='feature_map')
-
-    # Remove hooks
-    for hook in hooks:
-        hook.remove()
-
-    return activations
-
-
 def k_means_compute(embeddings, flag = None):
 
     X = embeddings
@@ -285,7 +219,7 @@ class MeanDistanceLoss(nn.Module):
         zero = torch.zeros_like(same_concept_dists)
         loss= torch.max(zero, margin + same_concept_dists - diff_concept_dists.mean()).mean()
         
-        return distances_im, val,loss
+        return distances_im, val, loss
 
 def compute_means(train_compute, model, num_concepts):
        
