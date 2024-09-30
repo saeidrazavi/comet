@@ -14,7 +14,6 @@ from utils import *
 from Losses.losses import *
 from Networks.Resnets import *
 from Networks.Vggs import * 
-from Braindataset import *  
 
 device = 'cuda'
 
@@ -32,7 +31,7 @@ def parse_args():
     parser.add_argument('--start_epoch' , default=0, type=int,help ='Starting epoch')        
     parser.add_argument('--stop_epoch'  , default=-1, type=int, help ='Stopping epoch')
     parser.add_argument('--save_iter', default=-1, type=int,help ='save feature from the model trained in x epoch, use the best model if x is -1')
-    parser.add_argument('--config', type=str, default='configs/config.yaml', help="training configuration")
+    parser.add_argument('--config', type=str, default='Config/config.yaml', help="training configuration")
 
     return parser.parse_args()
 
