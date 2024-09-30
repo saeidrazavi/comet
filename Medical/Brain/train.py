@@ -65,9 +65,11 @@ def train(args, tf_writer):
     # num_ftrs = mod.fc.in_features
     # mod.fc = nn.Linear(num_ftrs, args.num_concepts) #args.num_classes
     # mod.to(device)
+    vgg, model = get_networks(config)
+    vgg, model = vgg.to(device), model.to(device)
     #--------------------
     criterion1 = MeanDistanceLoss()
-    criterion2 = MseDirectionLoss()
+    criterion2 = MseDirectionLoss(lamda)
     #--------------------
     optimizer = optim.Adam(mod.parameters(), lr=0.001)
     max_acc=0
