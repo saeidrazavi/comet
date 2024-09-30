@@ -1,6 +1,9 @@
-
 from kmeans_pytorch import kmeans
 import torch 
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset
+from PIL import Image
 
 device = 'cuda'
 
@@ -175,6 +178,49 @@ def compute_means(train_compute, model, num_concepts):
         means_n = torch.stack([mean.clone().detach() for mean in means_n])
       
         return means_y, means_n        
+
+
+class BrainDataset(Dataset):
+    def __init__(self, train_ids_file, centroids_file, transform=None):
+        self.image_paths = {}
+        self.train_ids = []
+        with open(train_ids_file) as f:
+            for line in f:
+                image_id, image_path = line.strip().split(" ",1)
+                self.image_paths[image_id] = image_path
+                self.train_ids.append(image_id)
+
+        self.centroids = {}
+        with open(centroids_file) as f:
+            part_ids = [str(i+1) for i in range(64)]
+            for line in f:
+                img_id, *parts = map(int, line.strip().split())
+                if img_id not in self.centroids:
+                    self.centroids[img_id] = {'part_ids': part_ids, 'x': [], 'y': []}
+                self.centroids[img_id]['x'].extend(parts[1::2])
+                self.centroids[img_id]['y'].extend(parts[2::2])
+
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.train_ids)
+
+    def __getitem__(self, index):
+        image_id = self.train_ids[index]
+        if image_id not in self.image_paths:
+            raise ValueError(f"Image id {image_id} not found in image paths")
+        image_path = self.image_paths[image_id]
+        image = Image.open(image_path).convert('RGB')
+        centroids = self.centroids[int(image_id)]
+        if 'yes' in image_path:
+            label = 0
+        elif 'no' in image_path:
+            label = 1
+        else:
+            raise ValueError(f"Unknown label for image at {image_path}")    
+        if self.transform:
+            image = self.transform(image)
+        return {'image': image, 'image_id': image_id, 'centroids': centroids, 'labels': label}
 
 
 def get_config(config):
