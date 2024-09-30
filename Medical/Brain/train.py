@@ -71,11 +71,11 @@ def train(args, tf_writer):
     criterion1 = MeanDistanceLoss()
     criterion2 = MseDirectionLoss(lamda)
     #--------------------
-    optimizer = optim.Adam(mod.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     max_acc=0
     max_acc_mod=0
     
-    for epoch in range(40):
+    for epoch in range(num_epochs):
         print("Training Epoch", epoch)
         running_loss = 0.0
         epoch_correct = 0
@@ -96,9 +96,13 @@ def train(args, tf_writer):
             # distances, val, loss = criterion1(labels,embeddings, means_y, means_n, mean_embedding_y, mean_embedding_n)            
             # loss_p = F.cross_entropy(-distances.to(device), labels.unsqueeze(-1))
             #-----------------------------------------------
-            output_real = model_pretrained(batch['image'].to(device))
-            output_pred = mod(batch['image'].to(device), type= "activation")
-            loss_salehi = criterion2(output_pred, output_real, labels)
+            output_real = vgg(batch['image'].to(device))
+            output_pred = model(batch['image'].to(device))
+            #----------------------------------------------
+            healthy_mask = (labels == 1)  # Mask for healthy samples
+            output_pred = [output_pred[i][healthy_mask] for i in range(len(output_pred))]
+            output_real = [output_real[i][healthy_mask] for i in range(len(output_real))]
+            loss_salehi = criterion2(output_pred, output_real)
             #-----------------------------------------------
             losstt = loss_salehi
             #-----------------------------------------------
