@@ -48,14 +48,13 @@ def train(args, tf_writer):
     lamda = config['lamda']
     continue_train = config['continue_train']
     last_checkpoint = config['last_checkpoint']
-    model_pretrained = ResNet18EmbeddingRef().cuda()
    
     #---------------------------------------
     train_transform = transforms.Compose([
         transforms.Resize((args.im_size, args.im_size)),
-        transforms.RandomHorizontalFlip(0.2),
-        transforms.RandomVerticalFlip(0.1),
-        transforms.RandomAutocontrast(0.2),
+        # transforms.RandomHorizontalFlip(0.2),
+        # transforms.RandomVerticalFlip(0.1),
+        # transforms.RandomAutocontrast(0.2),
         transforms.ToTensor()
     ])
     train_dataset = BrainDataset('./train_image_paths.txt', './centroidss.txt', transform=train_transform)
@@ -100,6 +99,8 @@ def train(args, tf_writer):
             output_pred = model(batch['image'].to(device))
             #----------------------------------------------
             healthy_mask = (labels == 1)  # Mask for healthy samples
+            if not healthy_mask.any():
+                   continue
             output_pred = [output_pred[i][healthy_mask] for i in range(len(output_pred))]
             output_real = [output_real[i][healthy_mask] for i in range(len(output_real))]
             loss_salehi = criterion2(output_pred, output_real)
@@ -118,8 +119,8 @@ def train(args, tf_writer):
             # epoch_correct += batch_correct
             # epoch_total += len(labels)
         
-        if(epoch == 39) : 
-            torch.save({'epoch':epoch, 'state':mod.state_dict()}, 'resnet18_model_brain_v2_39epoch_27sep_salehi.pth')
+        if(epoch % 50 == 0) : 
+            torch.save({'epoch':epoch, 'state':model.state_dict()}, f'./output/vgg16_epoch_{epoch}.pth')
 
         # accuracy_model = 100 * epoch_correct / epoch_total
         # tf_writer.add_scalar('loss/train', running_loss, epoch)
